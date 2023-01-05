@@ -1,0 +1,32 @@
+version: '3.1'
+services:
+  externo:
+    image: 'externo.jar'
+    ports:
+      - "8082:8082"
+  tenpo:
+    image: 'tenpo.jar'
+    ports:
+      - "8081:8081"
+    depends_on:
+      PostgreSQL:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://PostgreSQL:5432/tenpo
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=beta1234
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+  PostgreSQL:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=beta1234
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=tenpo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
